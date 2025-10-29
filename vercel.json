@@ -1,14 +1,10 @@
 {
   "version": 2,
   "builds": [
-    { "src": "package.json", "use": "@vercel/node" }
+    { "src": "api/index.py", "use": "@vercel/python" }
   ],
-  "functions": {
-    "api/**/*.js": { "runtime": "nodejs18.x", "maxDuration": 60, "memory": 1024 },
-    "api/**/*.ts": { "runtime": "nodejs18.x", "maxDuration": 60, "memory": 1024 }
-  },
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/backend/(.*)", "dest": "/api/$1" }
+    { "src": "/api/(.*)", "dest": "api/index.py" },
+    { "src": "/backend/(.*)", "dest": "api/index.py" }
   ]
 }
