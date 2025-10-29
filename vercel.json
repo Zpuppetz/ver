@@ -2,16 +2,16 @@
   "version": 2,
   "builds": [
     {
-      "src": "UrbanInfra/backend/app.py",
+      "src": "/backend/app.py",
       "use": "@vercel/python"
     },
     {
-      "src": "UrbanInfra/index.html",
+      "src": "/index.html",
       "use": "@vercel/static"
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "UrbanInfra/backend/app.py" },
-    { "src": "/(.*)", "dest": "UrbanInfra/index.html" }
+    { "src": "/api/(.*)", "dest": "/backend/app.py" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
