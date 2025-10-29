@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delhi Administrative Boundaries Explorer</title>
+    <script>
+      (async () => {
+        try {
+          const response = await fetch("/api/maps/sdk_url");
+          if (!response.ok) {
+            throw new Error(`Failed to fetch Maps SDK URL: ${response.statusText}`);
+          }
+          const data = await response.json();
+          const script = document.createElement("script");
+          script.src = data.sdk_url;
+          script.async = true;
+          script.defer = true;
+          script.onload = async () => {
+            // Wait for Google Maps to be fully loaded before initializing
+            try {
+              // Wait for the maps library to be available
+              let retries = 0;
+              const maxRetries = 50; // 2.5 seconds max wait (50 * 50ms)
+              while ((typeof google === 'undefined' || !google.maps || !google.maps.Map) && retries < maxRetries) {
+                await new Promise(resolve => setTimeout(resolve, 50));
+                retries++;
+              }
+              
+              if (typeof google === 'undefined' || !google.maps || !google.maps.Map) {
+                throw new Error("Google Maps API failed to load");
+              }
+              
+              // Additional wait to ensure importLibrary is also available
+              retries = 0;
+              while (!google.maps.importLibrary && retries < 20) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                retries++;
+              }
+              
+              // The initMap function is now globally available, so we can call it.
+              if (window.initMap) {
+                await window.initMap();
+              } else {
+                console.warn("initMap function not found, retrying...");
+                setTimeout(() => {
+                  if (window.initMap) {
+                    window.initMap();
+                  }
+                }, 500);
+              }
+            } catch (error) {
+              console.error("Error initializing map:", error);
+              // Show user-friendly error message
+              const mapContainer = document.getElementById("map");
+              if (mapContainer) {
+                mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: white; font-family: Inter, sans-serif;"><div><h2>Map Loading Error</h2><p>Please refresh the page. If the problem persists, check your internet connection.</p></div></div>';
+              }
+            }
+          };
+          
+          script.onerror = () => {
+            console.error("Failed to load Google Maps script");
+            const mapContainer = document.getElementById("map");
+            if (mapContainer) {
+              mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: white; font-family: Inter, sans-serif;"><div><h2>Map Loading Error</h2><p>Failed to load Google Maps. Please check your API key configuration.</p></div></div>';
+            }
+          };
+          document.head.appendChild(script);
+        } catch (error) {
+          console.error("Could not load the Google Maps script.", error);
+          // You could display an error message to the user here.
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="css/style.css?v=1.4" type="text/css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="app-root">
+      <aside class="side-panel" id="side-panel">
+        <div class="side-top">
+          <div id="title-card">
+            <h1>Delhi Administrative Boundaries</h1>
+            <p>An interactive map of districts and wards</p>
+          </div>
+
+          <div class="search-box">
+            <label for="ward-search" class="visually-hidden">Search ward</label>
+            <input id="ward-search" type="search" placeholder="Search ward or ward number..." autocomplete="off" />
+            <div id="search-suggestions" class="suggestions" aria-hidden="true"></div>
+          </div>
+
+          <div id="map-controls">
+            <span class="control-label">Satellite View</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="map-type-toggle" />
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="side-bottom info-panel" id="side-info">
+          <!-- The Info Panel will be added here by the script -->
+        </div>
+      </aside>
+
+      <main class="map-pane">
+        <div id="map"></div>
+      </main>
+    </div>
+
+    <button id="back-button" style="display: none">Back</button>
+    <div id="loader" class="loader-overlay" aria-hidden="true">
+      <div class="loader-card" role="status" aria-live="polite">
+        <div class="loader-title">Analyzing Ward</div>
+        <div class="loader-status" id="loader-status">Preparing ward metadata...</div>
+        <div class="progress" aria-hidden="false" aria-label="Progress">
+          <div class="progress-bar" id="loader-progress" style="width: 0%"></div>
+        </div>
+        <div class="loader-tip" id="loader-tip">This may take about 10–20 seconds.</div>
+      </div>
+    </div>
+
+    <script type="module" src="js/script.js?v=1.4"></script>
+  </body>
+</html>

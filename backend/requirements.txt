@@ -1,0 +1,9 @@
+# /backend/requirements.txt
+
+Flask
+google-generativeai
+python-dotenv
+requests
+markdown2
+Flask-Cors
+gunicorn
