@@ -6,8 +6,10 @@ from pathlib import Path
 import utils
 
 def create_app():
-    app = Flask(__name__, static_folder='../../delhiInfra', static_url_path='')
-    
+    # Serve static files (like index.html, CSS, JS) from your frontend folder
+    # Adjust the static_folder path if your frontend files are elsewhere
+    app = Flask(__name__, static_folder='../../UrbanInfra', static_url_path='')
+
     # Load configuration
     app.config.update(load_configuration())
 
@@ -28,9 +30,19 @@ def create_app():
 
     return app
 
-# Create the application instance for WSGI servers
+
+# -------------------------------------------------------------
+# ✅ Entry point for Vercel
+# -------------------------------------------------------------
+# Vercel looks for a WSGI variable named "app"
 app = create_app()
 
+# -------------------------------------------------------------
+# ✅ Local development server (ignored by Vercel)
+# -------------------------------------------------------------
 if __name__ == "__main__":
-    # Development server
-    app.run(debug=True, host="0.0.0.0", port=int(app.config.get("PORT", 5001)))
+    app.run(
+        debug=True,
+        host="0.0.0.0",
+        port=int(app.config.get("PORT", 5001))
+    )
