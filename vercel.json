@@ -1,10 +1,15 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/index.py", "use": "@vercel/python" }
+    {
+      "src": "UrbanInfra/backend/app.py",
+      "use": "@vercel/python"
+    }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "api/index.py" },
-    { "src": "/backend/(.*)", "dest": "api/index.py" }
+    {
+      "src": "/(.*)",
+      "dest": "UrbanInfra/backend/app.py"
+    }
   ]
 }
